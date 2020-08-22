@@ -74,26 +74,3 @@ func (in *Inspector) Parent(n ast.Node) ast.Node {
 	}
 	return path[1]
 }
-
-/*
-// Root returns a root node of the given node.
-func (in *Inspector) Root(n ast.Node) ast.Node {
-	var root ast.Node
-	in.WithStack(nil, func(_n ast.Node, push bool, _stack []ast.Node) bool {
-		if root != nil {
-			return false
-		}
-
-		if n != nil && n != _n {
-			return true
-		}
-
-		if len(_stack) > 0 {
-			root = _stack[0]
-		}
-
-		return false
-	})
-	return root
-}
-*/

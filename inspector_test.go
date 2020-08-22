@@ -108,28 +108,3 @@ func TestInspector_Parent(t *testing.T) {
 		})
 	}
 }
-
-/*
-func TestInspector_Root(t *testing.T) {
-	t.Parallel()
-	cases := map[string]struct {
-		stmt string
-		want string
-	}{
-		"single": {"return", "File"},
-	}
-
-	for n, tt := range cases {
-		tt := tt
-		t.Run(n, func(t *testing.T) {
-			t.Parallel()
-			stmt, in := newInspector(t, tt.stmt)
-			root := in.Root(stmt)
-			got := nodeType(t, root)
-			if diff := cmp.Diff(tt.want, got); diff != "" {
-				t.Errorf(diff)
-			}
-		})
-	}
-}
-*/
