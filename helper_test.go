@@ -30,14 +30,14 @@ func nodesType(t *testing.T, ns []ast.Node) []string {
 
 func newInspector(t *testing.T, stmtStr string) (ast.Stmt, *astquery.Inspector) {
 	t.Helper()
-	src := fmt.Sprintf("package a\nfunc f() { %s }", stmtStr)
+	src := fmt.Sprintf("package a\nfunc f() { _ = 10; %s }", stmtStr)
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, "a.go", src, 0)
 	if err != nil {
 		t.Fatal("unexpected error:", err)
 	}
 
-	stmt := f.Decls[0].(*ast.FuncDecl).Body.List[0]
+	stmt := f.Decls[0].(*ast.FuncDecl).Body.List[1]
 	in := astquery.NewInspector([]*ast.File{f})
 
 	return stmt, in

@@ -3,6 +3,7 @@ package astquery
 import (
 	"go/ast"
 
+	"golang.org/x/tools/go/ast/astutil"
 	"golang.org/x/tools/go/ast/inspector"
 )
 
@@ -73,4 +74,34 @@ func (in *Inspector) Parent(n ast.Node) ast.Node {
 		return nil
 	}
 	return path[1]
+}
+
+// Name returns parent's field name.
+func (in *Inspector) Name(n ast.Node) string {
+	var name string
+	parent := in.Parent(n)
+	astutil.Apply(parent, func(cur *astutil.Cursor) bool {
+		if n == cur.Node() {
+			name = cur.Name()
+			return false
+		}
+		return true
+	}, nil)
+
+	return name
+}
+
+// Index returns parent's field index.
+func (in *Inspector) Index(n ast.Node) int {
+	var index int
+	parent := in.Parent(n)
+	astutil.Apply(parent, func(cur *astutil.Cursor) bool {
+		if n == cur.Node() {
+			index = cur.Index()
+			return false
+		}
+		return true
+	}, nil)
+
+	return index
 }

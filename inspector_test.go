@@ -108,3 +108,47 @@ func TestInspector_Parent(t *testing.T) {
 		})
 	}
 }
+
+func TestInspector_Name(t *testing.T) {
+	t.Parallel()
+	cases := map[string]struct {
+		stmt string
+		want string
+	}{
+		"single": {"return", "List"},
+	}
+
+	for n, tt := range cases {
+		tt := tt
+		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+			stmt, in := newInspector(t, tt.stmt)
+			got  := in.Name(stmt)
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf(diff)
+			}
+		})
+	}
+}
+
+func TestInspector_Index(t *testing.T) {
+	t.Parallel()
+	cases := map[string]struct {
+		stmt string
+		want int
+	}{
+		"single": {"return", 1},
+	}
+
+	for n, tt := range cases {
+		tt := tt
+		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+			stmt, in := newInspector(t, tt.stmt)
+			got  := in.Index(stmt)
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf(diff)
+			}
+		})
+	}
+}
