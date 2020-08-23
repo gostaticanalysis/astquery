@@ -44,6 +44,7 @@ type attr struct {
 	name, val string
 }
 
+// NodeNavigator implements xpath.NodeNavigator.
 type NodeNavigator struct {
 	in       *Inspector
 	fset     *token.FileSet
