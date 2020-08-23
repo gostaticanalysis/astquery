@@ -14,8 +14,24 @@ $ go get -u github.com/gostaticanalysis/astquery/cmd/astquery
 
 ### How to use
 
+#### Select a node set
+
 ```sh
 $ astquery '//*[@type="CallExpr"]/Fun[@type="Ident" and @Name="panic"]' fmt
+```
+
+#### Select attributes
+
+```sh
+# Find calling panic in fmt package
+$ astquery '//*[@type="CallExpr"]/Fun[@type="Ident" and @Name="panic"]/@pos' fmt
+/usr/local/go/src/fmt/format.go:266:3
+/usr/local/go/src/fmt/print.go:553:4
+/usr/local/go/src/fmt/scan.go:240:2
+/usr/local/go/src/fmt/scan.go:244:2
+/usr/local/go/src/fmt/scan.go:253:5
+/usr/local/go/src/fmt/scan.go:508:3
+/usr/local/go/src/fmt/scan.go:1064:4
 ```
 
 ## Analyzer

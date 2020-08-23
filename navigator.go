@@ -205,7 +205,7 @@ func (n *NodeNavigator) MoveToParent() bool {
 
 func (n *NodeNavigator) MoveToNextAttribute() bool {
 	if n.attr == -1 {
-		n.attrs = attributes(n.node)
+		n.attrs = attributes(n.fset, n.node)
 	}
 
 	if n.attr >= len(n.attrs)-1 {
@@ -293,7 +293,7 @@ func (n *NodeNavigator) MoveTo(to xpath.NodeNavigator) bool {
 	return true
 }
 
-func attributes(n ast.Node) []attr {
+func attributes(fset *token.FileSet, n ast.Node) []attr {
 	switch n.(type) {
 	case *pkg:
 		return nil
@@ -304,11 +304,18 @@ func attributes(n ast.Node) []attr {
 		rv = rv.Elem()
 	}
 
-	attrs := []attr{{
-		parent: n,
-		name:   "type",
-		val:    strings.TrimPrefix(rv.Type().String(), "ast."),
-	}}
+	attrs := []attr{
+		{
+			parent: n,
+			name:   "type",
+			val:    strings.TrimPrefix(rv.Type().String(), "ast."),
+		},
+		{
+			parent: n,
+			name:   "pos",
+			val:    fset.Position(n.Pos()).String(),
+		},
+	}
 
 	if rv.Kind() == reflect.Struct {
 		for i := 0; i < rv.NumField(); i++ {
@@ -316,6 +323,7 @@ func attributes(n ast.Node) []attr {
 			switch f.Kind() {
 			case reflect.Bool, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr, reflect.Float32, reflect.Float64, reflect.Complex64, reflect.Complex128, reflect.String, reflect.UnsafePointer:
 				attrs = append(attrs, attr{
+					parent: n,
 					name: rv.Type().Field(i).Name,
 					val:  fmt.Sprintf("%v", rv.Field(i).Interface()),
 				})
