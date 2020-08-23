@@ -10,7 +10,7 @@ In addtion you can use the follows as an attribute:
 
  * `@type`: type of a node
  * `@pos`: `token.Position` of a node in string value
- * `@src`: source code representation of a node with "go/format".Node
+ * `@src`: source code representation of a node with `"go/format".Node`
 
 ## CLI Tool
 ### Install
