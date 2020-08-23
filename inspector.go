@@ -42,8 +42,13 @@ func (in *Inspector) Children(n ast.Node) []ast.Node {
 func (in *Inspector) Stack(n ast.Node) []ast.Node {
 	var stack []ast.Node
 	in.WithStack(nil, func(_n ast.Node, push bool, _stack []ast.Node) bool {
+		if !push || stack != nil {
+			return false
+		}
+
 		if n == _n {
-			stack = _stack
+			stack = make([]ast.Node, len(_stack))
+			copy(stack, _stack)
 			return false
 		}
 		return true

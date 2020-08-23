@@ -9,6 +9,7 @@ import (
 
 func TestEvaluator_Select(t *testing.T) {
 	t.Parallel()
+	//astquery.DebugON(t)
 
 	S := func(s ...string) []string { return s }
 	TD := func(f string) string { return filepath.Join("testdata", "TestEvaluator_Select", f) }
@@ -20,6 +21,7 @@ func TestEvaluator_Select(t *testing.T) {
 		"single":   {TD("single.go"), "/*/Decls[1]/Body/*", S("ReturnStmt")},
 		"multi":    {TD("multi.go"), "/*/Decls[1]/Body/*", S("AssignStmt", "ReturnStmt")},
 		"filename": {TD("single.go"), "/a.go/Decls[1]/Body/*", S("ReturnStmt")},
+		"attr":     {TD("attr.go"), "//*[@type='CallExpr']/Fun[@type='Ident' and @Name='print']", S("Ident", "Ident", "Ident")},
 	}
 
 	for n, tt := range cases {
