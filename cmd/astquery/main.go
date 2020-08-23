@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go/ast"
 	"os"
+	"reflect"
 
 	"github.com/gostaticanalysis/astquery"
 	"golang.org/x/tools/go/packages"
@@ -41,7 +42,20 @@ func main() {
 				fmt.Printf("%[1]T %[1]v\n", n)
 			}
 		default:
-			fmt.Println(v)
+			rv := reflect.ValueOf(v)
+			switch rv.Kind() {
+			case reflect.Array, reflect.Slice:
+				for i := 0; i < rv.Len(); i++ {
+					fmt.Println(rv.Index(i).Interface())
+				}
+			case reflect.Map:
+				for _, key := range rv.MapKeys() {
+					val := rv.MapIndex(key)
+					fmt.Printf("%v:%v\n", key.Interface(), val.Interface())
+				}
+			default:
+				fmt.Println(v)
+			}
 		}
 	}
 }

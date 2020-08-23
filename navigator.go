@@ -41,7 +41,16 @@ func (p *pkg) End() token.Pos {
 }
 
 type attr struct {
+	parent    ast.Node
 	name, val string
+}
+
+func (a attr) Pos() token.Pos {
+	return a.parent.Pos()
+}
+
+func (a attr) End() token.Pos {
+	return a.parent.End()
 }
 
 // NodeNavigator implements xpath.NodeNavigator.
@@ -77,6 +86,9 @@ func NewNodeNavigator(fset *token.FileSet, files []*ast.File, in *inspector.Insp
 }
 
 func (n *NodeNavigator) Node() ast.Node {
+	if n.attr != -1 {
+		return n.attrs[n.attr]
+	}
 	return n.node
 }
 
@@ -293,8 +305,9 @@ func attributes(n ast.Node) []attr {
 	}
 
 	attrs := []attr{{
-		name: "type",
-		val:  strings.TrimPrefix(rv.Type().String(), "ast."),
+		parent: n,
+		name:   "type",
+		val:    strings.TrimPrefix(rv.Type().String(), "ast."),
 	}}
 
 	if rv.Kind() == reflect.Struct {

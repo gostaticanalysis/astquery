@@ -32,7 +32,18 @@ func (e *Evaluator) Eval(expr string) (interface{}, error) {
 	v := _expr.Evaluate(n)
 	switch v := v.(type) {
 	case *xpath.NodeIterator:
-		return nodes(v), nil
+		ns := nodes(v)
+		vs := make([]interface{}, 0, len(ns))
+		for i := range ns {
+			switch n := ns[i].(type) {
+			case attr:
+				vs = append(vs, n.val)
+			}
+		}
+		if len(vs) == len(ns) {
+			return vs, nil
+		}
+		return ns, nil
 	}
 
 	return v, nil

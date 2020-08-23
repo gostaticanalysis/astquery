@@ -40,3 +40,32 @@ func TestEvaluator_Select(t *testing.T) {
 		})
 	}
 }
+
+func TestEvaluator_Eval(t *testing.T) {
+	t.Parallel()
+	//astquery.DebugON(t)
+
+	TD := func(f string) string { return filepath.Join("testdata", "TestEvaluator_Eval", f) }
+	cases := map[string]struct {
+		path  string
+		xpath string
+		want  interface{}
+	}{
+		"attr": {TD("attr.go"), "//*[@type='CallExpr']/Fun[@type='Ident']/@Name", []interface{}{"print", "print", "println", "print"}},
+	}
+
+	for n, tt := range cases {
+		tt := tt
+		t.Run(n, func(t *testing.T) {
+			t.Parallel()
+			e := newEvaluator(t, tt.path)
+			got, err := e.Eval(tt.xpath)
+			if err != nil {
+				t.Fatal("unexpected error:", err)
+			}
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Error(diff)
+			}
+		})
+	}
+}
