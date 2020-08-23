@@ -8,7 +8,7 @@ import (
 	"golang.org/x/tools/go/ast/inspector"
 )
 
-// Analyzer provides *astquery.Seacher as a result.
+// Analyzer provides *astquery.Evaluator as a result.
 var Analyzer = &analysis.Analyzer{
 	Name: "astquery",
 	Doc:  "search nodes by xpath",
