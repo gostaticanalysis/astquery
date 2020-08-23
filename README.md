@@ -5,6 +5,10 @@
 `astquery` uses [antchfx/xpath](https://github.com/antchfx/xpath).
 You can see a document of xpath expressions at [antchfx/xpath's repository](https://github.com/antchfx/xpath#expressions).
 
+`@type` and `@pos` can use as an attribute.
+`@type` represents type of a node and `@pos` is `token.Position` of a node in string value.
+You can also use field of a node as an attributes such as `@Name` for `*ast.Ident`.
+
 ## CLI Tool
 ### Install
 
