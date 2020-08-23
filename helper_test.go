@@ -43,11 +43,11 @@ func newInspector(t *testing.T, stmtStr string) (ast.Stmt, *astquery.Inspector) 
 	return stmt, in
 }
 
-func newSeacher(t *testing.T, path string) *astquery.Seacher {
+func newEvaluator(t *testing.T, path string) *astquery.Evaluator {
 	t.Helper()
 	fset := token.NewFileSet()
 	files := parse(t, fset, path)
-	return astquery.NewSeacher(fset, files, nil)
+	return astquery.New(fset, files, nil)
 }
 
 func parse(t *testing.T, fset *token.FileSet, path string) []*ast.File {

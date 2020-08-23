@@ -16,12 +16,12 @@ var Analyzer = &analysis.Analyzer{
 	Requires: []*analysis.Analyzer{
 		inspect.Analyzer,
 	},
-	ResultType: reflect.TypeOf(new(Seacher)),
+	ResultType: reflect.TypeOf(new(Evaluator)),
 }
 
 type analyzer struct{}
 
 func (analyzer) run(pass *analysis.Pass) (interface{}, error) {
 	inspect := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
-	return NewSeacher(pass.Fset, pass.Files, inspect), nil
+	return New(pass.Fset, pass.Files, inspect), nil
 }

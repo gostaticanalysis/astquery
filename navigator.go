@@ -5,15 +5,13 @@ import (
 	"go/ast"
 	"go/token"
 	"path/filepath"
-	"strings"
 
 	"github.com/antchfx/xpath"
 	"golang.org/x/tools/go/ast/inspector"
 )
 
 type pkg struct {
-	files []*fileHolder
-	syntax []*ast.File
+	files []*ast.File
 }
 
 var _ ast.Node = (*pkg)(nil)
@@ -40,23 +38,9 @@ func (p *pkg) End() token.Pos {
 	return p.files[len(p.files)-1].End()
 }
 
-type fileHolder struct {
-	name   string
-	syntax *ast.File
-}
-
-var _ ast.Node = (*fileHolder)(nil)
-
-func (fh *fileHolder) Pos() token.Pos {
-	return fh.syntax.Pos()
-}
-
-func (fh *fileHolder) End() token.Pos {
-	return fh.syntax.End()
-}
-
 type NodeNavigator struct {
 	in       *Inspector
+	fset     *token.FileSet
 	root     *pkg
 	node     ast.Node
 	siblings []ast.Node
@@ -69,33 +53,17 @@ var _ xpath.NodeNavigator = (*NodeNavigator)(nil)
 // If in is not nil NodeNavigator use the given inspector.
 func NewNodeNavigator(fset *token.FileSet, files []*ast.File, in *inspector.Inspector) *NodeNavigator {
 
-	holders := make([]*fileHolder, len(files))
-	for i := range files {
-		f := fset.File(files[i].Pos())
-		holders[i] = &fileHolder{
-			name:   filepath.Base(f.Name()),
-			syntax: files[i],
-		}
-	}
-
 	if in == nil {
 		in = inspector.New(files)
 	}
 
-	root := &pkg{
-		files: holders,
-		syntax: files,
-	}
-
+	root := &pkg{files: files}
 	return &NodeNavigator{
 		in:   &Inspector{in},
+		fset: fset,
 		node: root,
 		root: root,
 	}
-}
-
-func (n *NodeNavigator) isRoot() bool {
-	return n.node == nil
 }
 
 func (n *NodeNavigator) Node() ast.Node {
@@ -114,11 +82,12 @@ func (n *NodeNavigator) LocalName() string {
 	switch node := n.node.(type) {
 	case *pkg:
 		return ""
-	case *fileHolder:
-		return node.name
+	case *ast.File:
+		f := n.fset.File(node.Pos())
+		return filepath.Base(f.Name())
 	}
 
-	return strings.TrimPrefix(fmt.Sprintf("%T", n.node), "*ast.")
+	return n.in.Name(n.node)
 }
 
 func (n *NodeNavigator) Prefix() string {
@@ -129,8 +98,9 @@ func (n *NodeNavigator) Value() string {
 	switch node := n.node.(type) {
 	case *pkg:
 		return ""
-	case *fileHolder:
-		return node.name
+	case *ast.File:
+		f := n.fset.File(node.Pos())
+		return filepath.Base(f.Name())
 	}
 
 	return fmt.Sprintf("%v", n.node)
@@ -139,6 +109,7 @@ func (n *NodeNavigator) Value() string {
 func (n *NodeNavigator) Copy() xpath.NodeNavigator {
 	copied := &NodeNavigator{
 		in:    n.in,
+		fset:  n.fset,
 		root:  n.root,
 		node:  n.node,
 		index: n.index,
@@ -160,9 +131,6 @@ func (n *NodeNavigator) MoveToParent() bool {
 	switch n.node.(type) {
 	case *pkg:
 		return false
-	case *fileHolder:
-		n.MoveToRoot()
-		return true
 	}
 
 	parent := n.in.Parent(n.node)
@@ -189,11 +157,6 @@ func (n *NodeNavigator) MoveToChild() bool {
 		n.siblings = node.children()
 		n.index = 0
 		n.node = n.siblings[0]
-		return true
-	case *fileHolder:
-		n.siblings = nil
-		n.index = 0
-		n.node = node.syntax
 		return true
 	}
 
@@ -244,4 +207,22 @@ func (n *NodeNavigator) MoveTo(to xpath.NodeNavigator) bool {
 	n.siblings = _to.siblings
 	n.index = _to.index
 	return true
+}
+
+func nodes(iter *xpath.NodeIterator) []ast.Node {
+	var ns []ast.Node
+	for iter.MoveNext() {
+		current, _ := iter.Current().(*NodeNavigator)
+		if current != nil && current.Node() != nil {
+			switch n := current.Node().(type) {
+			case *pkg:
+				for _, f := range n.files {
+					ns = append(ns, f)
+				}
+			default:
+				ns = append(ns, n)
+			}
+		}
+	}
+	return ns
 }

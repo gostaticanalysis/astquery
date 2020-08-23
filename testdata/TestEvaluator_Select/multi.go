@@ -1,10 +1,6 @@
 -- a.go --
 package a
 func a() {
-	return
-}
--- b.go --
-package a
-func b() {
+	_ = 10
 	return
 }
