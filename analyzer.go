@@ -9,6 +9,21 @@ import (
 )
 
 // Analyzer provides *astquery.Evaluator as a result.
+//
+// Example:
+//	func run(pass *analysis.Pass) (interface{}, error) {
+//		e := pass.ResultOf[astquery.Analyzer].(*astquery.Evaluator)
+//		ns, err := e.Select("//*[@type='CallExpr']/Fun[@type='Ident' and @Name='panic']")
+//		if err != nil {
+//			return nil, err
+//		}
+//		
+//		for _, n := range ns {
+//			pass.Reportf(n.Pos(), "don't panic")
+//		}
+//		
+//		return nil, nil
+//	}
 var Analyzer = &analysis.Analyzer{
 	Name: "astquery",
 	Doc:  "search nodes by xpath",
