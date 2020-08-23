@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"go/ast"
 	"os"
 
 	"github.com/gostaticanalysis/astquery"
@@ -27,10 +28,20 @@ func main() {
 	}
 
 	for _, pkg := range pkgs {
-		s := astquery.NewSeacher(pkg.Fset, pkg.Syntax, nil)
-		ns := s.Query(expr)
-		for _, n := range ns {
-			fmt.Printf("%[1]T %[1]v\n", n)
+		e := astquery.New(pkg.Fset, pkg.Syntax, nil)
+		v, err := e.Eval(expr)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "eval: %v\n", err)
+			os.Exit(1)
+		}
+
+		switch v := v.(type) {
+		case []ast.Node:
+			for _, n := range v {
+				fmt.Printf("%[1]T %[1]v\n", n)
+			}
+		default:
+			fmt.Println(v)
 		}
 	}
 }
