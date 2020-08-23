@@ -1,5 +1,7 @@
 # astquery [![PkgGoDev](https://pkg.go.dev/badge/github.com/gostaticanalysis/astquery)](https://pkg.go.dev/github.com/gostaticanalysis/astquery)
 
+`astquery` selects a node set from AST by XPath.
+
 ## CLI Tool
 ### Install
 
