@@ -1,8 +1,10 @@
 package astquery
 
 import (
+	"bytes"
 	"fmt"
 	"go/ast"
+	"go/format"
 	"go/token"
 	"path/filepath"
 	"reflect"
@@ -317,6 +319,15 @@ func attributes(fset *token.FileSet, n ast.Node) []attr {
 		},
 	}
 
+	var src bytes.Buffer
+	if err := format.Node(&src, fset, n); err == nil {
+		attrs = append(attrs, attr{
+			parent: n,
+			name:   "src",
+			val:    src.String(),
+		})
+	}
+
 	if rv.Kind() == reflect.Struct {
 		for i := 0; i < rv.NumField(); i++ {
 			f := rv.Field(i)
@@ -324,8 +335,8 @@ func attributes(fset *token.FileSet, n ast.Node) []attr {
 			case reflect.Bool, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr, reflect.Float32, reflect.Float64, reflect.Complex64, reflect.Complex128, reflect.String, reflect.UnsafePointer:
 				attrs = append(attrs, attr{
 					parent: n,
-					name: rv.Type().Field(i).Name,
-					val:  fmt.Sprintf("%v", rv.Field(i).Interface()),
+					name:   rv.Type().Field(i).Name,
+					val:    fmt.Sprintf("%v", rv.Field(i).Interface()),
 				})
 			}
 		}

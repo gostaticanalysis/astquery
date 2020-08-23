@@ -52,6 +52,7 @@ func TestEvaluator_Eval(t *testing.T) {
 		want  interface{}
 	}{
 		"attr": {TD("attr.go"), "//*[@type='CallExpr']/Fun[@type='Ident']/@Name", []interface{}{"print", "print", "println", "print"}},
+		"src": {TD("attr.go"), "//*[@src='print']/@Name", []interface{}{"print", "print", "print"}},
 	}
 
 	for n, tt := range cases {
